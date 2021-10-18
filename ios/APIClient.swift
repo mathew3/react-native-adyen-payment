@@ -18,22 +18,30 @@ internal final class APIClient {
 
         url = URL(string:url.appendingPathComponent(request.path).absoluteString.removingPercentEncoding!)!
 
-        print(" ---- request url: \(url))")
+        print(" ---- Request url: \(url))")
 
-        let body: Data
-        do {
-            body = try Coder.encode(request)
-        } catch {
-            completionHandler(.failure(error))
-            return
-        }
-        
-        print(" ---- Request (/\(request.path)) ----")
-        // printAsJSON(body)
-        
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "GET"
-        // urlRequest.httpBody = body
+
+        if (request.type == "PAYMENT_METHODS") {
+            urlRequest.httpMethod = "GET"
+        } else if (request.type == "PAYMENT") {
+            let body: Data
+
+            do {
+                body = try Coder.encode(request)
+            } catch {
+                completionHandler(.failure(error))
+                return
+            }
+
+            urlRequest.httpMethod = "POST"
+            urlRequest.httpBody = body
+
+            printAsJSON(body)
+        } else if (request.type == "PAYMENT_DETAILS") {
+            // todo
+            urlRequest.httpMethod = "GET"
+        }
         
         var url_headers = ["Content-Type": "application/json"]
         if(!AppServiceConfigData.app_url_headers.isEmpty){

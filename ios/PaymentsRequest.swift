@@ -24,7 +24,8 @@ internal struct PaymentsRequest: Request {
     
     internal typealias ResponseType = PaymentsResponse
     
-    internal let path = "payments"
+    internal let path = "orders"
+    internal let type = "PAYMENT"
     
     internal let data: PaymentComponentData
     
