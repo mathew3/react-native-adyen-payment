@@ -14,8 +14,12 @@ internal final class APIClient {
     internal typealias CompletionHandler<T> = (Result<T, Error>) -> Void
     
     internal func perform<R: Request>(_ request: R, completionHandler: @escaping CompletionHandler<R.ResponseType>) {
-        let url : URL = URL(string:AppServiceConfigData.base_url)!.appendingPathComponent(request.path)
-        
+        var url : URL = URL(string:AppServiceConfigData.base_url)!
+
+        url = URL(string:url.appendingPathComponent(request.path).absoluteString.removingPercentEncoding!)!
+
+        print(" ---- request url: \(url))")
+
         let body: Data
         do {
             body = try Coder.encode(request)
@@ -25,11 +29,11 @@ internal final class APIClient {
         }
         
         print(" ---- Request (/\(request.path)) ----")
-        printAsJSON(body)
+        // printAsJSON(body)
         
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.httpBody = body
+        urlRequest.httpMethod = "GET"
+        // urlRequest.httpBody = body
         
         var url_headers = ["Content-Type": "application/json"]
         if(!AppServiceConfigData.app_url_headers.isEmpty){
