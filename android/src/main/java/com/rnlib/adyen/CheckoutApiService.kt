@@ -7,11 +7,12 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.HeaderMap
 import retrofit2.http.POST
+import retrofit2.http.GET
 import com.rnlib.adyen.PaymentMethodsRequest
 
 interface CheckoutApiService {
-    @POST("paymentMethods")
-    fun paymentMethods(@HeaderMap headerMap: Map<String, String>,@Body paymentMethodsRequest: PaymentMethodsRequest): Call<ResponseBody>
+    @GET("payment/adyen/payment-methods?channel=Android")
+    fun paymentMethods(@HeaderMap headerMap: Map<String, String>): Call<ResponseBody>
 
     @POST("payments")
     fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody): Call<ResponseBody>

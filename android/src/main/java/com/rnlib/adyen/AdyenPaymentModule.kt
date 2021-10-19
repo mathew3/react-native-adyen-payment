@@ -177,11 +177,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         paymentData = ReactNativeUtils.convertMapToJson(paymentDetails)
         val compData = ReactNativeUtils.convertMapToJson(componentData)
         val additionalData: MutableMap<String, String> = linkedMapOf()
-        val paymentMethodReq : PaymentMethodsRequest = PaymentMethodsRequest(paymentData.getString("merchantAccount"),
-            paymentData.getString("shopperReference"),additionalData,ArrayList<String>(),getAmt(paymentData.getJSONObject("amount")),
-                 ArrayList<String>(),paymentData.getString("countryCode"),paymentData.getString("shopperLocale"),"Android")
-
-        val paymentMethods : Call<ResponseBody> = ApiService.checkoutApi(configData.base_url).paymentMethods(configData.app_url_headers,paymentMethodReq)
+        val paymentMethods : Call<ResponseBody> = ApiService.checkoutApi(configData.base_url).paymentMethods(configData.app_url_headers)
         setLoading(true)
         paymentMethods.enqueue(object : retrofit2.Callback<ResponseBody> {
             override fun onResponse(call : Call<ResponseBody>,response : Response<ResponseBody>) {
@@ -261,7 +257,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         }
         //adyenConfigurationBuilder.setEnvironment(Environment.TEST)
         val localeArr = paymentData.getString("shopperLocale").split("_")
-        val shopperLocale = Locale(localeArr[0],localeArr[1])
+        val shopperLocale = if (localeArr.size == 2) Locale(localeArr[0],localeArr[1]) else Locale(localeArr[0])
         //val shoppersLocale = Locale(paymentData.getString("shopperLocale").toLowerCase().split("_")[0])
         adyenConfigurationBuilder.setShopperLocale(shopperLocale)
         try {
@@ -411,11 +407,12 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     }
  
     private fun showDropInComponent(componentData : JSONObject) {
+        println(componentData)
 
         Log.d(TAG, "startDropIn")
         val context = getReactApplicationContext()
         val localeArr = paymentData.getString("shopperLocale").split("_")
-        val shopperLocale = Locale(localeArr[0],localeArr[1])
+        val shopperLocale = if (localeArr.size == 2) Locale(localeArr[0],localeArr[1]) else Locale(localeArr[0])
 
         val googlePayConfigBuilder = GooglePayConfiguration.Builder(context,paymentData.getString("merchantAccount"))
         when (configData.environment) {
