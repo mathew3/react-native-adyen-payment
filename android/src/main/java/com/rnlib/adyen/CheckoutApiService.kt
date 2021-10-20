@@ -14,7 +14,7 @@ interface CheckoutApiService {
     @GET("payment/adyen/payment-methods?channel=Android")
     fun paymentMethods(@HeaderMap headerMap: Map<String, String>): Call<ResponseBody>
 
-    @POST("payments")
+    @POST("orders")
     fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody): Call<ResponseBody>
 
     @POST("payments/details")

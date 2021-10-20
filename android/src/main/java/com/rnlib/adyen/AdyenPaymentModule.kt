@@ -360,7 +360,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     private fun showCardComponent(componentData : JSONObject){
         val context = getReactApplicationContext()
         val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
+        val cardConfiguration = CardConfiguration.Builder(context, componentData.getString("clientKey"))
                             .setShopperReference(paymentData.getString("shopperReference"))
                             .build()
         val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
@@ -409,106 +409,110 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     private fun showDropInComponent(componentData : JSONObject) {
         println(componentData)
 
-        Log.d(TAG, "startDropIn")
-        val context = getReactApplicationContext()
-        val localeArr = paymentData.getString("shopperLocale").split("_")
-        val shopperLocale = if (localeArr.size == 2) Locale(localeArr[0],localeArr[1]) else Locale(localeArr[0])
-
-        val googlePayConfigBuilder = GooglePayConfiguration.Builder(context,paymentData.getString("merchantAccount"))
-        when (configData.environment) {
-            "test" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_TEST)}
-            "live" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
-            "eu" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
-            "us" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
-            "au" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
-            else -> {
-                googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)
-            }
-        }
-        googlePayConfigBuilder.setCountryCode(paymentData.getString("countryCode"))
-        val googlePayConfig = googlePayConfigBuilder.build()
-
-        val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
-                            .setShopperReference(paymentData.getString("shopperReference"))
-                            .setShopperLocale(shopperLocale)
-                            .setHolderNameRequire(cardComponent.optBoolean("holderNameRequire"))
-                            .setShowStorePaymentField(cardComponent.optBoolean("showStorePaymentField"))
-                            .build()
-
-        val bcmcComponent : JSONObject = if(componentData.has(PaymentMethodTypes.BCMC))  componentData.getJSONObject(PaymentMethodTypes.BCMC) else JSONObject()
-        var bcmcConfiguration : BcmcConfiguration? = null
-        if(bcmcComponent.length() != 0){
-          bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("card_public_key"))
-                                .setShopperLocale(shopperLocale)
-                                .build()
-        }
-
-        val afterPayComponent : JSONObject = if(componentData.has(PaymentMethodTypes.AFTER_PAY))  componentData.getJSONObject(PaymentMethodTypes.AFTER_PAY) else JSONObject()
-        var afterPayConfiguration : AfterPayConfiguration? = null
-        if(afterPayComponent.length() != 0){
-            afterPayConfiguration =  when (afterPayComponent.getString("countryCode")) {
-                "NL" -> {AfterPayConfiguration.Builder(context, AfterPayConfiguration.CountryCode.NL).setShopperLocale(shopperLocale).build()}
-                "BE" -> {AfterPayConfiguration.Builder(context, AfterPayConfiguration.CountryCode.BE).setShopperLocale(shopperLocale).build()}
-                else -> null
-            }   
-            
-        }
-
-        /*
-        val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
-        configBuilder.addCardConfiguration(cardConfiguration)
-            .addBcmcConfiguration(bcmcConfiguration)
-            .addGooglePayConfiguration(googlePayConfig)
-
-        if((afterPayComponent.length() != 0) && afterPayConfiguration != null){
-            configBuilder.addAfterPayConfiguration(afterPayConfiguration)
-        }
-        AdyenComponent.startPayment(context, paymentMethodsApiResponse, configBuilder.build())
-        */
-        val resultIntent = Intent(reactContext as Context, super.getCurrentActivity()!!::class.java)
-        resultIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        
-        val dropInConfigurationBuilder = DropInConfiguration.Builder(
-            super.getCurrentActivity() as Context,
-            resultIntent,
-            AdyenDropInService::class.java
-        ).addCardConfiguration(cardConfiguration)
-            .addGooglePayConfiguration(googlePayConfig)
-
-        if((bcmcComponent.length() != 0) && bcmcConfiguration != null){
-          dropInConfigurationBuilder.addBcmcConfiguration(bcmcConfiguration)
-        }
-
-        if((afterPayComponent.length() != 0) && afterPayConfiguration != null){
-            dropInConfigurationBuilder.addAfterPayConfiguration(afterPayConfiguration)
-        }
-
-        when (configData.environment) {
-            "test" -> {dropInConfigurationBuilder.setEnvironment(Environment.TEST)}
-            "live" -> {dropInConfigurationBuilder.setEnvironment(Environment.EUROPE)}
-            "eu" -> {dropInConfigurationBuilder.setEnvironment(Environment.EUROPE)}
-            "us" -> {dropInConfigurationBuilder.setEnvironment(Environment.UNITED_STATES)}
-            "au" -> {dropInConfigurationBuilder.setEnvironment(Environment.AUSTRALIA)}
-            else -> {
-                dropInConfigurationBuilder.setEnvironment(Environment.TEST)
-            }
-        }
-        
-        dropInConfigurationBuilder.setShopperLocale(shopperLocale)
-
-        val amount = Amount()
-        val amtJson : JSONObject  = paymentData.getJSONObject("amount")
-        amount.currency = amtJson.getString("currency")
-        amount.value = amtJson.getInt("value")
-
         try {
-            dropInConfigurationBuilder.setAmount(amount)
+            Log.d(TAG, "startDropIn")
+            val context = getReactApplicationContext()
+            val localeArr = paymentData.getString("shopperLocale").split("_")
+            val shopperLocale = if (localeArr.size == 2) Locale(localeArr[0],localeArr[1]) else Locale(localeArr[0])
+
+            val googlePayConfigBuilder = GooglePayConfiguration.Builder(context,paymentData.getString("merchantAccount"))
+            when (configData.environment) {
+                "test" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_TEST)}
+                "live" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
+                "eu" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
+                "us" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
+                "au" -> {googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)}
+                else -> {
+                    googlePayConfigBuilder.setGooglePayEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)
+                }
+            }
+            googlePayConfigBuilder.setCountryCode(paymentData.getString("countryCode"))
+            val googlePayConfig = googlePayConfigBuilder.build()
+
+            val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
+            val cardConfiguration = CardConfiguration.Builder(context, componentData.getString("clientKey"))
+                                .setShopperReference(paymentData.getString("shopperReference"))
+                                .setShopperLocale(shopperLocale)
+                                .setHolderNameRequire(cardComponent.optBoolean("holderNameRequire"))
+                                .setShowStorePaymentField(cardComponent.optBoolean("showStorePaymentField"))
+                                .build()
+
+            val bcmcComponent : JSONObject = if(componentData.has(PaymentMethodTypes.BCMC))  componentData.getJSONObject(PaymentMethodTypes.BCMC) else JSONObject()
+            var bcmcConfiguration : BcmcConfiguration? = null
+            if(bcmcComponent.length() != 0){
+            bcmcConfiguration = BcmcConfiguration.Builder(context, bcmcComponent.getString("card_public_key"))
+                                    .setShopperLocale(shopperLocale)
+                                    .build()
+            }
+
+            val afterPayComponent : JSONObject = if(componentData.has(PaymentMethodTypes.AFTER_PAY))  componentData.getJSONObject(PaymentMethodTypes.AFTER_PAY) else JSONObject()
+            var afterPayConfiguration : AfterPayConfiguration? = null
+            if(afterPayComponent.length() != 0){
+                afterPayConfiguration =  when (afterPayComponent.getString("countryCode")) {
+                    "NL" -> {AfterPayConfiguration.Builder(context, AfterPayConfiguration.CountryCode.NL).setShopperLocale(shopperLocale).build()}
+                    "BE" -> {AfterPayConfiguration.Builder(context, AfterPayConfiguration.CountryCode.BE).setShopperLocale(shopperLocale).build()}
+                    else -> null
+                }   
+                
+            }
+
+            /*
+            val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
+            configBuilder.addCardConfiguration(cardConfiguration)
+                .addBcmcConfiguration(bcmcConfiguration)
+                .addGooglePayConfiguration(googlePayConfig)
+
+            if((afterPayComponent.length() != 0) && afterPayConfiguration != null){
+                configBuilder.addAfterPayConfiguration(afterPayConfiguration)
+            }
+            AdyenComponent.startPayment(context, paymentMethodsApiResponse, configBuilder.build())
+            */
+            val resultIntent = Intent(reactContext as Context, super.getCurrentActivity()!!::class.java)
+            resultIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            
+            val dropInConfigurationBuilder = DropInConfiguration.Builder(
+                super.getCurrentActivity() as Context,
+                resultIntent,
+                AdyenDropInService::class.java
+            ).addCardConfiguration(cardConfiguration)
+                .addGooglePayConfiguration(googlePayConfig)
+
+            if((bcmcComponent.length() != 0) && bcmcConfiguration != null){
+            dropInConfigurationBuilder.addBcmcConfiguration(bcmcConfiguration)
+            }
+
+            if((afterPayComponent.length() != 0) && afterPayConfiguration != null){
+                dropInConfigurationBuilder.addAfterPayConfiguration(afterPayConfiguration)
+            }
+
+            when (configData.environment) {
+                "test" -> {dropInConfigurationBuilder.setEnvironment(Environment.TEST)}
+                "live" -> {dropInConfigurationBuilder.setEnvironment(Environment.EUROPE)}
+                "eu" -> {dropInConfigurationBuilder.setEnvironment(Environment.EUROPE)}
+                "us" -> {dropInConfigurationBuilder.setEnvironment(Environment.UNITED_STATES)}
+                "au" -> {dropInConfigurationBuilder.setEnvironment(Environment.AUSTRALIA)}
+                else -> {
+                    dropInConfigurationBuilder.setEnvironment(Environment.TEST)
+                }
+            }
+            
+            dropInConfigurationBuilder.setShopperLocale(shopperLocale)
+
+            val amount = Amount()
+            val amtJson : JSONObject  = paymentData.getJSONObject("amount")
+            amount.currency = amtJson.getString("currency")
+            amount.value = amtJson.getInt("value")
+
+            try {
+                dropInConfigurationBuilder.setAmount(amount)
+            } catch (e: CheckoutException) {
+                Log.e(TAG, "Amount $amount not valid", e)
+            }
+            
+            DropIn.startPayment(super.getCurrentActivity() as Context, paymentMethodsApiResponse, dropInConfigurationBuilder.build())
         } catch (e: CheckoutException) {
-            Log.e(TAG, "Amount $amount not valid", e)
+            Log.e(TAG, "error", e)
         }
-        
-        DropIn.startPayment(super.getCurrentActivity() as Context, paymentMethodsApiResponse, dropInConfigurationBuilder.build())
         
     }
 
