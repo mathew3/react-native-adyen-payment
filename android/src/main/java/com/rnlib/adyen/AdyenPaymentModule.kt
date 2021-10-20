@@ -360,7 +360,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
     private fun showCardComponent(componentData : JSONObject){
         val context = getReactApplicationContext()
         val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-        val cardConfiguration = CardConfiguration.Builder(context, componentData.getString("clientKey"))
+        val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
                             .setShopperReference(paymentData.getString("shopperReference"))
                             .build()
         val configBuilder : AdyenComponentConfiguration.Builder = createConfigurationBuilder(context)
@@ -410,6 +410,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         println(componentData)
 
         try {
+
             Log.d(TAG, "startDropIn")
             val context = getReactApplicationContext()
             val localeArr = paymentData.getString("shopperLocale").split("_")
@@ -430,7 +431,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
             val googlePayConfig = googlePayConfigBuilder.build()
 
             val cardComponent : JSONObject = componentData.getJSONObject(PaymentMethodTypes.SCHEME)
-            val cardConfiguration = CardConfiguration.Builder(context, componentData.getString("clientKey"))
+            val cardConfiguration = CardConfiguration.Builder(context, cardComponent.getString("card_public_key"))
                                 .setShopperReference(paymentData.getString("shopperReference"))
                                 .setShopperLocale(shopperLocale)
                                 .setHolderNameRequire(cardComponent.optBoolean("holderNameRequire"))
@@ -510,8 +511,9 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
             }
             
             DropIn.startPayment(super.getCurrentActivity() as Context, paymentMethodsApiResponse, dropInConfigurationBuilder.build())
+
         } catch (e: CheckoutException) {
-            Log.e(TAG, "error", e)
+            Log.e(TAG, "here", e)
         }
         
     }
