@@ -108,9 +108,9 @@ class AdyenDropInService : DropInService() {
                 Logger.e(TAG, "errorBody - ${String(byteArray)}")
             }
 
-            val detailsResponse = JSONObject(response.body()?.string())
-
             if (response.isSuccessful) {
+                val detailsResponse = JSONObject(response.body()?.string())
+
                 if (detailsResponse.has("action")) {
                     CallResult(CallResult.ResultType.ACTION, detailsResponse.get("action").toString())
                 } else {
