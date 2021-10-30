@@ -177,7 +177,7 @@ class AdyenPaymentModule(private var reactContext : ReactApplicationContext) : R
         paymentData = ReactNativeUtils.convertMapToJson(paymentDetails)
         val compData = ReactNativeUtils.convertMapToJson(componentData)
         val additionalData: MutableMap<String, String> = linkedMapOf()
-        val paymentMethods : Call<ResponseBody> = ApiService.checkoutApi(configData.base_url).paymentMethods(configData.app_url_headers, paymentData.getString("countryCode"), paymentData.getJSONObject("amount").getString("currency"), paymentData.getJSONObject("amount").getString("value"), paymentData.getString("shopperLocale").replace('_', '-'))
+        val paymentMethods : Call<ResponseBody> = ApiService.checkoutApi(configData.base_url).paymentMethods(configData.app_url_headers, paymentData.getString("countryCode"), paymentData.getJSONObject("amount").getString("currency"), paymentData.getJSONObject("amount").getInt("value"), paymentData.getString("shopperLocale").replace('_', '-'))
         setLoading(true)
         paymentMethods.enqueue(object : retrofit2.Callback<ResponseBody> {
             override fun onResponse(call : Call<ResponseBody>,response : Response<ResponseBody>) {
