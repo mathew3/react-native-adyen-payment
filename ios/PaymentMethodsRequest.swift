@@ -11,7 +11,7 @@ internal struct PaymentMethodsRequest: Request {
     
     internal typealias ResponseType = PaymentMethodsResponse
     
-    internal let path = "payment/adyen/payment-methods?channel=iOS"
+    internal let path = "payment/adyen/payment-methods?channel=iOS&countryCode=\(PaymentsData.countryCode)&amount[currency]=\(PaymentsData.amount.currencyCode)&amount[value]=\(PaymentsData.amount.value)&shopperLocale=\(PaymentsData.shopperLocale)"
     internal let type = "PAYMENT_METHODS"
     
     internal func encode(to encoder: Encoder) throws {
