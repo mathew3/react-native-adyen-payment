@@ -12,7 +12,11 @@ import com.rnlib.adyen.PaymentMethodsRequest
 
 interface CheckoutApiService {
     @GET("payment/adyen/payment-methods?channel=Android")
-    fun paymentMethods(@HeaderMap headerMap: Map<String, String>): Call<ResponseBody>
+    fun paymentMethods(@HeaderMap headerMap: Map<String, String>,
+        @Query("countryCode") String countryCode,
+        @Query("amount[currency]") String amountCurrency,
+        @Query("amount[value]") String amountValue,
+        @Query("shopperLocale") String shopperLocale): Call<ResponseBody>
 
     @POST("orders")
     fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody): Call<ResponseBody>
