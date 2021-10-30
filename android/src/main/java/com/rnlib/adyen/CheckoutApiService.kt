@@ -16,7 +16,7 @@ interface CheckoutApiService {
     fun paymentMethods(@HeaderMap headerMap: Map<String, String>,
         @Query("countryCode") countryCode: String,
         @Query("amount[currency]") amountCurrency: String,
-        @Query("amount[value]") amountValue: String,
+        @Query("amount[value]") amountValue: Int,
         @Query("shopperLocale") shopperLocale: String): Call<ResponseBody>
 
     @POST("orders")
