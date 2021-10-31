@@ -80,6 +80,8 @@ class AdyenComponentService : ComponentService() {
         paymentRequest.put("returnUrl", RedirectComponent.getReturnUrl(applicationContext))
         paymentRequest.put("channel", "Android")
 
+        paymentRequest.remove("orderId");
+
         Log.i(TAG, "paymentComponentData - ${JsonUtils.indent(paymentComponentData)}")
 
         val requestBody = paymentRequest.toString().toRequestBody(CONTENT_TYPE)
