@@ -79,13 +79,15 @@ class AdyenDropInService : DropInService() {
         paymentRequest.put("storePaymentMethod", paymentComponentData.getBoolean("storePaymentMethod"))
         paymentRequest.put("returnUrl", RedirectComponent.getReturnUrl(applicationContext))
         paymentRequest.put("channel", "Android")
+        
+        val orderId = paymentRequest.getInt("orderId").toString()
 
         paymentRequest.remove("orderId");
 
         Log.i(TAG, "paymentComponentData - ${JsonUtils.indent(paymentComponentData)}")
 
         val requestBody = paymentRequest.toString().toRequestBody(CONTENT_TYPE)
-        val call = ApiService.checkoutApi(configData.base_url).payments(configData.app_url_headers,requestBody,paymentRequest.getInt("orderId").toString())
+        val call = ApiService.checkoutApi(configData.base_url).payments(configData.app_url_headers,requestBody,orderId)
         return handleResponse(call)
     }
 
