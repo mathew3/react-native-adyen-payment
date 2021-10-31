@@ -23,6 +23,6 @@ interface CheckoutApiService {
     @POST("orders/{orderId}/payment")
     fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody,@Path("orderId") orderId: String): Call<ResponseBody>
 
-    @POST("payments/details")
+    @POST("payment/adyen/additional-details")
     fun details(@HeaderMap headerMap: Map<String, String>,@Body detailsRequest: RequestBody): Call<ResponseBody>
 }
