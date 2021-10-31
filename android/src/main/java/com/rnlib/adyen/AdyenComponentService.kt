@@ -83,7 +83,7 @@ class AdyenComponentService : ComponentService() {
         Log.i(TAG, "paymentComponentData - ${JsonUtils.indent(paymentComponentData)}")
 
         val requestBody = paymentRequest.toString().toRequestBody(CONTENT_TYPE)
-        val call = ApiService.checkoutApi(configData.base_url).payments(configData.app_url_headers,requestBody)
+        val call = ApiService.checkoutApi(configData.base_url).payments(configData.app_url_headers,requestBody,paymentRequest.getString("orderId"))
         return handleResponse(call)
     }
 
