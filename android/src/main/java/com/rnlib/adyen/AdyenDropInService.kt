@@ -80,7 +80,7 @@ class AdyenDropInService : DropInService() {
         paymentRequest.put("returnUrl", RedirectComponent.getReturnUrl(applicationContext))
         paymentRequest.put("channel", "Android")
         
-        val orderId = paymentRequest.getInt("orderId").toString()
+        val orderId = AdyenPaymentModule.getPaymentData().getInt("orderId").toString()
 
         paymentRequest.remove("orderId");
 
