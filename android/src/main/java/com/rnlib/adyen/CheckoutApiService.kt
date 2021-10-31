@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.HeaderMap
 import retrofit2.http.Query
+import retrofit2.http.Path
 import retrofit2.http.POST
 import retrofit2.http.GET
 import com.rnlib.adyen.PaymentMethodsRequest
@@ -19,8 +20,8 @@ interface CheckoutApiService {
         @Query("amount[value]") amountValue: Int,
         @Query("shopperLocale") shopperLocale: String): Call<ResponseBody>
 
-    @POST("orders")
-    fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody): Call<ResponseBody>
+    @POST("orders/{orderId}/payment")
+    fun payments(@HeaderMap headerMap: Map<String, String>,@Body paymentsRequest: RequestBody,@Path("orderId") orderId: String): Call<ResponseBody>
 
     @POST("payments/details")
     fun details(@HeaderMap headerMap: Map<String, String>,@Body detailsRequest: RequestBody): Call<ResponseBody>
