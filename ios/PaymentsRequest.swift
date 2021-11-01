@@ -17,6 +17,7 @@ internal struct PaymentsData {
     static var shopperReference: String = ""
     static var shopperEmail: String = ""
     static var merchantAccount : String = ""
+    static var orderId : Int = -1
     static var additionalData : [String : Any] = ["allow3DS2": true,"executeThreeD":true]
 }
 
@@ -24,12 +25,17 @@ internal struct PaymentsRequest: Request {
     
     internal typealias ResponseType = PaymentsResponse
     
-    internal let path = "orders"
-    internal let type = "PAYMENT"
-    
     internal let data: PaymentComponentData
-    
-    //internal let paymentData : NSDictionary
+    internal let orderId: Int
+
+    internal var path = ""
+    internal let type = "PAYMENT"
+
+    init(data: PaymentComponentData, orderId: Int) {
+        self.data = data
+        self.orderId = orderId
+        self.path = "orders/\(orderId)/payment"
+    }
     
     internal func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)

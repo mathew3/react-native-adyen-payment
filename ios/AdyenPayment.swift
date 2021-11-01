@@ -55,6 +55,7 @@ class AdyenPayment: RCTEventEmitter {
         PaymentsData.shopperEmail = paymentDetails["shopperEmail"] as! String
         PaymentsData.shopperLocale = paymentDetails["shopperLocale"] as! String
         PaymentsData.merchantAccount = paymentDetails["merchantAccount"] as! String
+        PaymentsData.orderId = paymentDetails["orderId"] as! Int
         if(additionalData != nil){
             let allow3DS2 : Bool = (additionalData?["allow3DS2"] != nil) ? additionalData?["allow3DS2"] as! Bool : false
             let executeThreeD : Bool = (additionalData?["executeThreeD"] != nil) ? additionalData?["executeThreeD"] as! Bool : false
@@ -353,7 +354,7 @@ class AdyenPayment: RCTEventEmitter {
     }
     
     func performPayment(with data: PaymentComponentData) {
-        let request = PaymentsRequest(data: data)
+        let request = PaymentsRequest(data: data, orderId: PaymentsData.orderId)
         apiClient.perform(request, completionHandler: paymentResponseHandler)
     }
     
@@ -434,9 +435,13 @@ class AdyenPayment: RCTEventEmitter {
             let msg:Dictionary? = ["resultCode" : resultCode.rawValue,"merchantReference":response.merchantReference!,"pspReference" : response.pspReference!,"additionalData" : additionalData]
             self.sendSuccess(message:msg)
         }else if(resultCode == .refused || resultCode == .error){
-            self.sendFailure(code : response.error_code ?? "",message: response.refusalReason ?? "")
+            let msg:Dictionary? = ["refusalReason" : response.refusalReason!,"merchantReference":response.merchantReference!,"pspReference" : response.pspReference!,"resultCode" : response.resultCode!,"refusalReasonCode": response.refusalReasonCode!]
+//            self.sendFailure(code : response.error_code ?? "",message: response.refusalReason ?? "",additionalInfo: msg)
+            self.sendSuccess(message:msg)
         }else if (resultCode == .cancelled){
-            self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled")
+            let msg:Dictionary? = ["refusalReason" : response.refusalReason!,"merchantReference":response.merchantReference!,"pspReference" : response.pspReference!,"resultCode" : response.resultCode!,"refusalReasonCode": response.refusalReasonCode!]
+//            self.sendFailure(code : "ERROR_CANCELLED",message: "Transaction Cancelled",additionalInfo: msg)
+            self.sendSuccess(message:msg)
         }else{
             self.sendFailure(code : "ERROR_UNKNOWN",message: "Unknown Error")
         }

@@ -24,7 +24,7 @@ internal final class APIClient {
 
         if (request.type == "PAYMENT_METHODS") {
             urlRequest.httpMethod = "GET"
-        } else if (request.type == "PAYMENT") {
+        } else if (request.type == "PAYMENT" || request.type == "PAYMENT_DETAILS") {
             let body: Data
 
             do {
@@ -38,9 +38,6 @@ internal final class APIClient {
             urlRequest.httpBody = body
 
             printAsJSON(body)
-        } else if (request.type == "PAYMENT_DETAILS") {
-            // todo
-            urlRequest.httpMethod = "GET"
         }
         
         var url_headers = ["Content-Type": "application/json"]
